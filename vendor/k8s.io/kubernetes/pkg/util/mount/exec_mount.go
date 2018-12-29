@@ -44,10 +44,10 @@ var _ Interface = &execMounter{}
 
 // Mount runs mount(8) using given exec interface.
 func (m *execMounter) Mount(source string, target string, fstype string, options []string) error {
-	bind, bindRemountOpts := isBind(options)
+	bind, bindOpts, bindRemountOpts := isBind(options)
 
 	if bind {
-		err := m.doExecMount(source, target, fstype, []string{"bind"})
+		err := m.doExecMount(source, target, fstype, bindOpts)
 		if err != nil {
 			return err
 		}
@@ -138,6 +138,10 @@ func (m *execMounter) MakeDir(pathname string) error {
 
 func (m *execMounter) ExistsPath(pathname string) (bool, error) {
 	return m.wrappedMounter.ExistsPath(pathname)
+}
+
+func (m *execMounter) EvalHostSymlinks(pathname string) (string, error) {
+	return m.wrappedMounter.EvalHostSymlinks(pathname)
 }
 
 func (m *execMounter) PrepareSafeSubpath(subPath Subpath) (newHostPath string, cleanupAction func(), err error) {
